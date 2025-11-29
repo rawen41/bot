@@ -191,7 +191,7 @@ def get_response(trigger_word: str) -> Optional[Dict[str, Any]]:
         .maybe_single()
         .execute()
     )
-    return res.data
+    return res.data if res and res.data else None
 
 
 # Managers helpers
