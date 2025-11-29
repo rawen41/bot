@@ -1,6 +1,9 @@
-FROM python:3.13-slim
+FROM python:3.13
 
 WORKDIR /app
+
+# Ensure pip is up to date
+RUN python -m pip install --upgrade pip
 
 # Copy requirements first for better cache utilization
 COPY requirements.txt .
