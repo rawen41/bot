@@ -42,7 +42,11 @@ async def start_private(message: Message) -> None:
 
         await message.bot.send_message(
             chat_id=bot_config.managed_group_id,
-            text=f"🔔 تمت إحالة العضو @{new_username} من طرف @{ref_username}",
+            text=f"🎉 إحالة جديدة! 🌟\n\n"
+                 f"👤 العضو: @{new_username}\n"
+                 f"🤝 بواسطة: @{ref_username}\n"
+                 f"🔢 إجمالي إحالات @{ref_username}: {new_count}\n\n"
+                 f"🚀 استمر في النجاح! 💪"
         )
 
         if new_count >= 100 and not has_reward_announcement_sent(referrer_id):
@@ -68,7 +72,9 @@ async def handle_main_menu_buttons(message: Message) -> None:
 
     if text == "🌐 رابط المجموعة":
         await message.answer(
-            f"🌐 رابط الانضمام للمجموعة:\n{bot_config.group_invite_link}")
+            f"🌐 رابط الانضمام للمجموعة:\n{bot_config.group_invite_link}\n\n"
+            "✨ لمزيد من النجاحات وفرص العمر، انضم لفريقنا اليوم! 🚀\n"
+            "نحن هنا لندعمك ونحقق معًا أهدافك! 💪🔥")
 
     elif text == "💬 الدعم الفني":
         await message.answer(
@@ -91,16 +97,29 @@ async def handle_main_menu_buttons(message: Message) -> None:
         )
 
     elif text == "🧮 إحصائياتي":
-        from database.supabase import get_user_stats
+        from database.supabase import get_user_stats, get_user_referrals
 
         stats = get_user_stats(tg_id)
         if not stats:
             await message.answer("لم يتم العثور على بياناتك بعد.")
             return
+        
+        referrals = get_user_referrals(tg_id)
+        referral_names = []
+        for ref in referrals:
+            name = ref.get("username")
+            if name:
+                referral_names.append(f"@{name}")
+            else:
+                referral_names.append(f"مستخدم {ref['tg_id']}")
+        
+        names_text = "\n".join(referral_names) if referral_names else "لا توجد إحالات بعد"
+        
         await message.answer(
             "🧮 إحصائياتك:\n\n"
             f"👤 المعرف: @{message.from_user.username or 'بدون'}\n"
-            f"🔗 عدد الإحالات الناجحة: {stats.get('referral_count', 0)}\n"
+            f"🔗 عدد الإحالات الناجحة: {stats.get('referral_count', 0)}\n\n"
+            f"👥 قائمة إحالاتك:\n{names_text}"
         )
 
     elif text == "🎁 المكافآت":

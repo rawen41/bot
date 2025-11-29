@@ -76,6 +76,26 @@ def get_or_create_user(tg_id: int, username: Optional[str], referred_by: Optiona
 def increment_referral(referrer_tg_id: int, referred_user_id: int) -> int:
     client = get_client()
 
+    # Check if this referral already exists to prevent duplicates
+    existing_ref = (
+        client.table("referrals")
+        .select("id")
+        .eq("user_id", referrer_tg_id)
+        .eq("referred_user", referred_user_id)
+        .maybe_single()
+        .execute()
+    )
+    if existing_ref and existing_ref.data:
+        # Already counted, just return current count
+        user_res = (
+            client.table("users")
+            .select("referral_count")
+            .eq("tg_id", referrer_tg_id)
+            .maybe_single()
+            .execute()
+        )
+        return user_res.data.get("referral_count", 0) if user_res.data else 0
+
     user_res = (
         client.table("users")
         .select("id, referral_count")
@@ -92,6 +112,29 @@ def increment_referral(referrer_tg_id: int, referred_user_id: int) -> int:
     client.table("users").update({"referral_count": referral_count}).eq("id", user_id).execute()
     client.table("referrals").insert({"user_id": user_id, "referred_user": referred_user_id}).execute()
     return referral_count
+
+
+def get_user_referrals(tg_id: int) -> List[Dict[str, Any]]:
+    """Get list of users referred by this user with their names."""
+    client = get_client()
+    res = (
+        client.table("referrals")
+        .select("referred_user")
+        .eq("user_id", tg_id)
+        .execute()
+    )
+    referred_ids = [row["referred_user"] for row in (res.data or [])]
+    if not referred_ids:
+        return []
+
+    # Fetch user details for referred IDs
+    users_res = (
+        client.table("users")
+        .select("tg_id, username")
+        .in_("tg_id", referred_ids)
+        .execute()
+    )
+    return users_res.data or []
 
 
 def get_user_stats(tg_id: int) -> Optional[Dict[str, Any]]:
