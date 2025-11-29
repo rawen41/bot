@@ -117,10 +117,23 @@ def increment_referral(referrer_tg_id: int, referred_user_id: int) -> int:
 def get_user_referrals(tg_id: int) -> List[Dict[str, Any]]:
     """Get list of users referred by this user with their names."""
     client = get_client()
+    # First get the internal user_id from tg_id
+    user_res = (
+        client.table("users")
+        .select("id")
+        .eq("tg_id", tg_id)
+        .maybe_single()
+        .execute()
+    )
+    if not user_res or not user_res.data:
+        return []
+    
+    internal_user_id = user_res.data["id"]
+    
     res = (
         client.table("referrals")
         .select("referred_user")
-        .eq("user_id", tg_id)
+        .eq("user_id", internal_user_id)
         .execute()
     )
     referred_ids = [row["referred_user"] for row in (res.data or [])]
