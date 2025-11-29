@@ -67,7 +67,7 @@ async def show_referrals_and_rewards(message: Message) -> None:
     await message.answer("\n".join(lines))
 
 
-@router.message(F.text == "📢 رسالة للمجموعة", StateFilter(None))
+@router.message(F.text == "📢 رسالة للمجموعة")
 async def start_broadcast(message: Message, state: FSMContext) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
@@ -126,7 +126,7 @@ async def back_to_main_menu(message: Message) -> None:
 # إدارة المدراء
 
 
-@router.message(F.text == "➕ إضافة مدير", StateFilter(None))
+@router.message(F.text == "➕ إضافة مدير")
 async def manager_add_start(message: Message, state: FSMContext) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
@@ -152,7 +152,7 @@ async def manager_add_finish(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(F.text == "➖ حذف مدير", StateFilter(None))
+@router.message(F.text == "➖ حذف مدير")
 async def manager_remove_start(message: Message, state: FSMContext) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")

@@ -77,8 +77,12 @@ async def handle_main_menu_buttons(message: Message) -> None:
             "نحن هنا لندعمك ونحقق معًا أهدافك! 💪🔥")
 
     elif text == "💬 الدعم الفني":
+        support_username = bot_config.support_username.lstrip('@')
         await message.answer(
-            f"💬 للتواصل مع الدعم الفني:\n{bot_config.support_username}")
+            f"💬 للتواصل مع الدعم الفني:\n"
+            f"اضغط على الرابط: @{support_username}\n"
+            f"أو افتح الحساب مباشرة: https://t.me/{support_username}"
+        )
 
     elif text == "🔗 رابط الإحالة الخاص بي":
         link = f"https://t.me/{bot_config.bot_username.lstrip('@')}?start={tg_id}"
