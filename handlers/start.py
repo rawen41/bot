@@ -1,6 +1,6 @@
 from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import ChatTypeFilter
+
 
 from config import bot_config
 from utils.keyboards import main_menu_kb
@@ -10,7 +10,7 @@ from database.supabase import has_reward_announcement_sent, mark_reward_sent
 router = Router()
 
 
-@router.message(ChatTypeFilter(chat_type=["private"]), F.text.startswith("/start"))
+@router.message(F.chat.type == "private", F.text.startswith("/start"))
 async def start_private(message: Message) -> None:
     """Handle any private message (no text commands, only buttons-based navigation).
 
@@ -61,7 +61,7 @@ async def start_private(message: Message) -> None:
     await message.answer(text, reply_markup=main_menu_kb(tg_id))
 
 
-@router.message(ChatTypeFilter(chat_type=["private"]))
+@router.message(F.chat.type == "private")
 async def handle_main_menu_buttons(message: Message) -> None:
     text = (message.text or "").strip()
     tg_id = message.from_user.id

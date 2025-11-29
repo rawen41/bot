@@ -1,6 +1,6 @@
 from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import ChatTypeFilter, StateFilter
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 
 from config import MAIN_ADMIN_ID, bot_config
@@ -25,7 +25,7 @@ from utils.states import (
 )
 
 router = Router()
-router.message.filter(ChatTypeFilter(chat_type=["private"]))
+router.message.filter(F.chat.type == "private")
 
 
 def _is_main_admin(message: Message) -> bool:

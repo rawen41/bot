@@ -2,7 +2,7 @@ from io import BytesIO
 
 from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import ChatTypeFilter, StateFilter
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 
 from config import MAIN_ADMIN_ID
@@ -17,7 +17,7 @@ from utils.keyboards import response_type_kb
 from utils.states import AddResponseState, DeleteResponseState, EditResponseState
 
 router = Router()
-router.message.filter(ChatTypeFilter(chat_type=["private"]))
+router.message.filter(F.chat.type == "private")
 
 
 def _is_main_admin(message: Message) -> bool:

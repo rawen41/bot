@@ -1,11 +1,10 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import ChatTypeFilter
 
 from config import bot_config
 
 router = Router()
-router.message.filter(ChatTypeFilter(chat_type=["private"]))
+router.message.filter(F.chat.type == "private")
 
 
 @router.message()

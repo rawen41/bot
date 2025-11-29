@@ -1,6 +1,5 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import ChatTypeFilter
 
 from config import bot_config
 from database.supabase import get_user_stats, get_top_referrers
@@ -8,7 +7,7 @@ from database.supabase import get_user_stats, get_top_referrers
 router = Router()
 
 
-@router.message(ChatTypeFilter(chat_type=["private"]))
+@router.message(F.chat.type == "private")
 async def show_referral_info(message: Message) -> None:
     """Optional detailed referral info via buttons in future (reserved)."""
     if (message.text or "").strip() != "إحالاتي":
@@ -25,7 +24,7 @@ async def show_referral_info(message: Message) -> None:
     )
 
 
-@router.message(ChatTypeFilter(chat_type=["supergroup", "group"]))
+@router.message((F.chat.type == "supergroup") | (F.chat.type == "group"))
 async def group_referral_announcement(message: Message) -> None:
     # This router is reserved if we want explicit referral commands in group later.
     return

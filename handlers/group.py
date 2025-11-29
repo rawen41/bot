@@ -1,13 +1,11 @@
 from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import ChatTypeFilter
-
 from config import MAIN_ADMIN_ID
 from database.supabase import get_explanation_mode, set_explanation_mode, is_manager
 from utils.helpers import send_db_response
 
 router = Router()
-router.message.filter(ChatTypeFilter(chat_type=["group", "supergroup"]))
+router.message.filter((F.chat.type == "group") | (F.chat.type == "supergroup"))
 
 
 @router.message(F.text == "بسم الله")
