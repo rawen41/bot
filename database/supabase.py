@@ -161,13 +161,20 @@ def get_top_referrers(limit: int = 10) -> List[Dict[str, Any]]:
 
 def add_response(trigger_word: str, response_type: str, content: str) -> None:
     client = get_client()
-    client.table("responses").insert(
-        {
-            "trigger_word": trigger_word.lower(),
-            "response_type": response_type,
-            "content": content,
-        }
-    ).execute()
+    try:
+        client.table("responses").insert(
+            {
+                "trigger_word": trigger_word.lower(),
+                "response_type": response_type,
+                "content": content,
+            }
+        ).execute()
+    except Exception as e:
+        if "duplicate key" in str(e):
+            # Handle duplicate gracefully
+            pass
+        else:
+            raise e
 
 
 def delete_response(trigger_word: str) -> None:
