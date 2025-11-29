@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import base64
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional, Any
+import os
+import base64
+from supabase import create_client, Client
+import logging
 
-from supabase import Client, create_client
+logger = logging.getLogger(__name__)
 
 from config import supabase_config
 
@@ -51,7 +55,7 @@ def get_or_create_user(tg_id: int, username: Optional[str], referred_by: Optiona
     client = get_client()
 
     existing = client.table("users").select("*").eq("tg_id", tg_id).maybe_single().execute()
-    if existing.data:
+    if existing and existing.data:
         user = existing.data
         user["__created__"] = False
         return user
