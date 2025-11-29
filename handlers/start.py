@@ -146,6 +146,7 @@ async def handle_main_menu_buttons(message: Message) -> None:
         from utils.keyboards import admin_panel_kb
 
         if tg_id != MAIN_ADMIN_ID:
+            await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
             return
         await message.answer("🧰 لوحة تحكم الأدمن الرئيسي:", reply_markup=admin_panel_kb())
 

@@ -25,7 +25,7 @@ from utils.states import (
 )
 
 router = Router()
-# We'll handle admin filtering in each handler to avoid conflicts
+# Handle all private messages, filter inside handlers
 
 
 def _is_main_admin(message: Message) -> bool:

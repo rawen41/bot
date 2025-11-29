@@ -1,11 +1,18 @@
 from aiogram import Router, F
 from aiogram.types import Message
-from config import MAIN_ADMIN_ID
+from aiogram.filters import Command
+from config import MAIN_ADMIN_ID, bot_config
 from database.supabase import get_explanation_mode, set_explanation_mode, is_manager
 from utils.helpers import send_db_response
 
 router = Router()
 router.message.filter((F.chat.type == "group") | (F.chat.type == "supergroup"))
+
+
+@router.message(Command("start"))
+async def group_start(message: Message) -> None:
+    """Handle /start in groups to check if bot is working."""
+    await message.answer("🤖 البوت يعمل بنجاح في المجموعة!")
 
 
 @router.message(F.text == "بسم الله")
@@ -14,6 +21,7 @@ async def enable_explanation_mode(message: Message) -> None:
         return
     user_id = message.from_user.id
     if user_id != MAIN_ADMIN_ID and not is_manager(user_id):
+        await message.reply("❌ هذا الأمر متاح فقط للأدمن والمدراء!")
         return
 
     set_explanation_mode(True)
@@ -22,7 +30,7 @@ async def enable_explanation_mode(message: Message) -> None:
     except Exception:
         pass
 
-    await message.answer("🧩 تم تفعيل وضع الشرح ✅")
+    await message.answer("✅ تم تفعيل وضع الشرح يرجى من الجميع الإنتباه.")
 
 
 @router.message(F.text == "الحمد لله")
@@ -31,6 +39,7 @@ async def disable_explanation_mode(message: Message) -> None:
         return
     user_id = message.from_user.id
     if user_id != MAIN_ADMIN_ID and not is_manager(user_id):
+        await message.reply("❌ هذا الأمر متاح فقط للأدمن والمدراء!")
         return
 
     set_explanation_mode(False)
@@ -39,7 +48,7 @@ async def disable_explanation_mode(message: Message) -> None:
     except Exception:
         pass
 
-    await message.answer("🧩 تم إلغاء وضع الشرح ⛔️")
+    await message.answer("✅ تم إنهاء وضع الشرح بإمكانكم طرح الأسئلة نشكركم لحسن الإستماع .")
 
 
 @router.message()

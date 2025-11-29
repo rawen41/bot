@@ -110,30 +110,19 @@ def increment_referral(referrer_tg_id: int, referred_user_id: int) -> int:
     referral_count = (user_res.data.get("referral_count") or 0) + 1
 
     client.table("users").update({"referral_count": referral_count}).eq("id", user_id).execute()
-    client.table("referrals").insert({"user_id": user_id, "referred_user": referred_user_id}).execute()
+    # Store tg_id instead of internal id for easier retrieval
+    client.table("referrals").insert({"user_id": referrer_tg_id, "referred_user": referred_user_id}).execute()
     return referral_count
 
 
 def get_user_referrals(tg_id: int) -> List[Dict[str, Any]]:
     """Get list of users referred by this user with their names."""
     client = get_client()
-    # First get the internal user_id from tg_id
-    user_res = (
-        client.table("users")
-        .select("id")
-        .eq("tg_id", tg_id)
-        .maybe_single()
-        .execute()
-    )
-    if not user_res or not user_res.data:
-        return []
-    
-    internal_user_id = user_res.data["id"]
-    
+    # Now we can directly query by tg_id since we store it directly
     res = (
         client.table("referrals")
         .select("referred_user")
-        .eq("user_id", internal_user_id)
+        .eq("user_id", tg_id)
         .execute()
     )
     referred_ids = [row["referred_user"] for row in (res.data or [])]
