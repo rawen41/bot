@@ -1,6 +1,6 @@
 from aiogram import Router, F
 from aiogram.types import Message
-
+import logging
 
 from config import bot_config
 from utils.keyboards import main_menu_kb
@@ -8,6 +8,7 @@ from database.supabase import get_or_create_user, increment_referral
 from database.supabase import has_reward_announcement_sent, mark_reward_sent
 
 router = Router()
+logger = logging.getLogger(__name__)
 
 
 @router.message(F.chat.type == "private", F.text.startswith("/start"))
@@ -69,6 +70,7 @@ async def start_private(message: Message) -> None:
 async def handle_main_menu_buttons(message: Message) -> None:
     text = (message.text or "").strip()
     tg_id = message.from_user.id
+    logger.info(f"Private message: {text} from user {tg_id}")
 
     if text == "🌐 رابط المجموعة":
         await message.answer(
