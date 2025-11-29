@@ -57,6 +57,8 @@ async def disable_explanation_mode(message: Message) -> None:
 
 @router.message()
 async def group_auto_moderation(message: Message) -> None:
+    logger.info(f"Group message received: {message.text} from user {message.from_user.id} in chat {message.chat.id}")
+    
     if not message.from_user or message.from_user.is_bot:
         return
 
@@ -64,7 +66,7 @@ async def group_auto_moderation(message: Message) -> None:
     if not text:
         return
 
-    logger.info(f"Group message: {text} from user {message.from_user.id} in chat {message.chat.id}")
+    logger.info(f"Processing group message: {text} from user {message.from_user.id} in chat {message.chat.id}")
 
     explanation_mode = get_explanation_mode()
 
