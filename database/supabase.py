@@ -217,10 +217,9 @@ def is_manager(tg_id: int) -> bool:
 def get_explanation_mode() -> bool:
     client = get_client()
     res = client.table("settings").select("explanation_mode").limit(1).maybe_single().execute()
-    if not res.data:
-        client.table("settings").insert({"explanation_mode": False}).execute()
-        return False
-    return bool(res.data.get("explanation_mode", False))
+    if res and res.data:
+        return bool(res.data.get("explanation_mode", False))
+    return False
 
 
 def set_explanation_mode(enabled: bool) -> None:

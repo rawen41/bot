@@ -1,4 +1,5 @@
 from io import BytesIO
+import logging
 
 from aiogram import Router, F
 from aiogram.types import Message
@@ -17,7 +18,7 @@ from utils.keyboards import response_type_kb
 from utils.states import AddResponseState, DeleteResponseState, EditResponseState
 
 router = Router()
-router.message.filter(F.chat.type == "private")
+logger = logging.getLogger(__name__)
 
 
 def _is_main_admin(message: Message) -> bool:
@@ -29,7 +30,9 @@ def _is_main_admin(message: Message) -> bool:
 
 @router.message(F.text == "➕ إضافة رد جديد", StateFilter(None))
 async def add_response_start(message: Message, state: FSMContext) -> None:
+    logger.info(f"Response button pressed: {message.text} from user {message.from_user.id}")
     if not _is_main_admin(message):
+        await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
         return
 
     await state.set_state(AddResponseState.waiting_for_trigger)
@@ -154,7 +157,9 @@ async def add_response_save(message: Message, state: FSMContext) -> None:
 
 @router.message(F.text == "🗑 حذف رد", StateFilter(None))
 async def delete_response_start(message: Message, state: FSMContext) -> None:
+    logger.info(f"Response button pressed: {message.text} from user {message.from_user.id}")
     if not _is_main_admin(message):
+        await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
         return
 
     await state.set_state(DeleteResponseState.waiting_for_trigger)
@@ -187,7 +192,9 @@ async def delete_response_finish(message: Message, state: FSMContext) -> None:
 
 @router.message(F.text == "✏️ تعديل رد", StateFilter(None))
 async def edit_response_start(message: Message, state: FSMContext) -> None:
+    logger.info(f"Response button pressed: {message.text} from user {message.from_user.id}")
     if not _is_main_admin(message):
+        await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
         return
 
     await state.set_state(EditResponseState.waiting_for_trigger)
