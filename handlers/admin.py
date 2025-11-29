@@ -25,14 +25,14 @@ from utils.states import (
 )
 
 router = Router()
-router.message.filter(F.chat.type == "private")
+# We'll handle admin filtering in each handler to avoid conflicts
 
 
 def _is_main_admin(message: Message) -> bool:
     return bool(message.from_user and message.from_user.id == MAIN_ADMIN_ID)
 
 
-@router.message(F.text == "📂 إدارة الردود الجاهزة")
+@router.message(F.chat.type == "private", F.text == "📂 إدارة الردود الجاهزة")
 async def open_responses_menu(message: Message) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
@@ -40,7 +40,7 @@ async def open_responses_menu(message: Message) -> None:
     await message.answer("📂 اختر العملية المطلوبة:", reply_markup=responses_manage_kb())
 
 
-@router.message(F.text == "👨‍💼 إدارة المدراء")
+@router.message(F.chat.type == "private", F.text == "👨‍💼 إدارة المدراء")
 async def open_managers_menu(message: Message) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
@@ -48,7 +48,7 @@ async def open_managers_menu(message: Message) -> None:
     await message.answer("👨‍💼 إدارة المدراء:", reply_markup=managers_manage_kb())
 
 
-@router.message(F.text == "📊 الإحالات و المكافآت")
+@router.message(F.chat.type == "private", F.text == "📊 الإحالات و المكافآت")
 async def show_referrals_and_rewards(message: Message) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
@@ -67,7 +67,7 @@ async def show_referrals_and_rewards(message: Message) -> None:
     await message.answer("\n".join(lines))
 
 
-@router.message(F.text == "📢 رسالة للمجموعة")
+@router.message(F.chat.type == "private", F.text == "📢 رسالة للمجموعة")
 async def start_broadcast(message: Message, state: FSMContext) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
@@ -96,7 +96,7 @@ async def send_broadcast(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(F.text == "⚙️ إعدادات البوت")
+@router.message(F.chat.type == "private", F.text == "⚙️ إعدادات البوت")
 async def show_settings(message: Message) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
@@ -111,7 +111,7 @@ async def show_settings(message: Message) -> None:
     )
 
 
-@router.message(F.text == "⬅️ رجوع للقائمة الرئيسية")
+@router.message(F.chat.type == "private", F.text == "⬅️ رجوع للقائمة الرئيسية")
 async def back_to_main_menu(message: Message) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
@@ -126,7 +126,7 @@ async def back_to_main_menu(message: Message) -> None:
 # إدارة المدراء
 
 
-@router.message(F.text == "➕ إضافة مدير")
+@router.message(F.chat.type == "private", F.text == "➕ إضافة مدير")
 async def manager_add_start(message: Message, state: FSMContext) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
@@ -152,7 +152,7 @@ async def manager_add_finish(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(F.text == "➖ حذف مدير")
+@router.message(F.chat.type == "private", F.text == "➖ حذف مدير")
 async def manager_remove_start(message: Message, state: FSMContext) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
@@ -178,7 +178,7 @@ async def manager_remove_finish(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(F.text == "📋 قائمة المدراء")
+@router.message(F.chat.type == "private", F.text == "📋 قائمة المدراء")
 async def list_managers(message: Message) -> None:
     if not _is_main_admin(message):
         await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
