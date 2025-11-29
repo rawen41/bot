@@ -1,42 +1,30 @@
 import os
-from dataclasses import dataclass
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
+from pydantic import Field
 
 
-@dataclass
-class BotConfig:
-    bot_token: str
-    bot_username: str
-    main_admin_id: int
-    support_username: str
-    managed_group_id: int
-    group_invite_link: str
+class SupabaseConfig(BaseSettings):
+    url: str = Field(..., env="SUPABASE_URL")
+    key: str = Field(..., env="SUPABASE_KEY")
 
 
-@dataclass
-class SupabaseConfig:
-    url: str
-    key: str
+class BotConfig(BaseSettings):
+    token: str = Field(default="8063907641:AAEo6EyElmNEvuYcr-ol31GQDbR0HGpOQp8")
+    username: str = Field(default="ar1nas_bot")
+    group_invite_link: str = Field(default="https://t.me/+your_group_link")
+    managed_group_id: int = Field(default=-1002846994358)
+    support_username: str = Field(default="prohacker41")
 
-load_dotenv()
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8063907641:AAFmre8HFV32Og1qNbmcmCfSYKoJfjyCtGc")
-BOT_USERNAME = os.getenv("BOT_USERNAME", "@ar1nas_bot")
-MAIN_ADMIN_ID = int(os.getenv("MAIN_ADMIN_ID", "7112140383"))
-SUPPORT_USERNAME = os.getenv("SUPPORT_USERNAME", "@prohacker41")
-MANAGED_GROUP_ID = int(os.getenv("MANAGED_GROUP_ID", "-1002846994358"))
-GROUP_INVITE_LINK = os.getenv("GROUP_INVITE_LINK", "https://t.me/+eNwR-cX_ZRxmMGRk")
+bot_config = BotConfig()
+supabase_config = SupabaseConfig()
 
+# Legacy compatibility
+BOT_TOKEN = bot_config.token
+BOT_USERNAME = bot_config.username
+MAIN_ADMIN_ID = 7112140383
+SUPPORT_USERNAME = bot_config.support_username
+MANAGED_GROUP_ID = bot_config.managed_group_id
+GROUP_INVITE_LINK = bot_config.group_invite_link
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
-
-bot_config = BotConfig(
-    bot_token=BOT_TOKEN,
-    bot_username=BOT_USERNAME,
-    main_admin_id=MAIN_ADMIN_ID,
-    support_username=SUPPORT_USERNAME,
-    managed_group_id=MANAGED_GROUP_ID,
-    group_invite_link=GROUP_INVITE_LINK,
-)
-
-supabase_config = SupabaseConfig(url=SUPABASE_URL, key=SUPABASE_KEY)
