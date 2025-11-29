@@ -17,11 +17,11 @@ async def main() -> None:
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher(storage=MemoryStorage())
 
-    # Register routers
+    # Register routers - admin first to catch admin commands
+    dp.include_router(admin.router)
     dp.include_router(start.router)
     dp.include_router(referrals.router)
     dp.include_router(group.router)
-    dp.include_router(admin.router)
     dp.include_router(responses.router)
     dp.include_router(support.router)
 
