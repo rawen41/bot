@@ -1,0 +1,24 @@
+services:
+  - type: worker
+    name: arinas-helper
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python main.py"
+    envVars:
+      - key: SUPABASE_URL
+        value: "https://YOUR-PROJECT.supabase.co"
+      - key: SUPABASE_KEY
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: BOT_USERNAME
+        value: "ar1nas_bot"
+      - key: MAIN_ADMIN_ID
+        value: "7112140383"
+      - key: SUPPORT_USERNAME
+        value: "@prohacker41"
+      - key: MANAGED_GROUP_ID
+        value: "-1002846994358"
+      - key: GROUP_INVITE_LINK
+        value: "https://t.me/+eNwR-cX_ZRxmMGRk"
