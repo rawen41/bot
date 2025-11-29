@@ -28,7 +28,7 @@ def _is_main_admin(message: Message) -> bool:
 # إضافة رد جديد
 
 
-@router.message(F.text == "➕ إضافة رد جديد", StateFilter(None))
+@router.message(F.text == "➕ إضافة رد جديد")
 async def add_response_start(message: Message, state: FSMContext) -> None:
     logger.info(f"Response button pressed: {message.text} from user {message.from_user.id}")
     if not _is_main_admin(message):
@@ -155,7 +155,7 @@ async def add_response_save(message: Message, state: FSMContext) -> None:
 # حذف رد
 
 
-@router.message(F.text == "🗑 حذف رد", StateFilter(None))
+@router.message(F.text == "🗑 حذف رد")
 async def delete_response_start(message: Message, state: FSMContext) -> None:
     logger.info(f"Response button pressed: {message.text} from user {message.from_user.id}")
     if not _is_main_admin(message):
@@ -190,7 +190,7 @@ async def delete_response_finish(message: Message, state: FSMContext) -> None:
 # تعديل رد
 
 
-@router.message(F.text == "✏️ تعديل رد", StateFilter(None))
+@router.message(F.text == "✏️ تعديل رد")
 async def edit_response_start(message: Message, state: FSMContext) -> None:
     logger.info(f"Response button pressed: {message.text} from user {message.from_user.id}")
     if not _is_main_admin(message):
