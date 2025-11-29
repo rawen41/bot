@@ -1,19 +1,20 @@
 import os
-from pydantic_settings import BaseSettings
-from pydantic import Field
 
 
-class SupabaseConfig(BaseSettings):
-    url: str = Field(..., env="SUPABASE_URL")
-    key: str = Field(..., env="SUPABASE_KEY")
+# Simple configuration without pydantic
+class SupabaseConfig:
+    def __init__(self):
+        self.url = os.getenv("SUPABASE_URL", "")
+        self.key = os.getenv("SUPABASE_KEY", "")
 
 
-class BotConfig(BaseSettings):
-    token: str = Field(default="8063907641:AAEo6EyElmNEvuYcr-ol31GQDbR0HGpOQp8")
-    username: str = Field(default="ar1nas_bot")
-    group_invite_link: str = Field(default="https://t.me/+your_group_link")
-    managed_group_id: int = Field(default=-1002846994358)
-    support_username: str = Field(default="prohacker41")
+class BotConfig:
+    def __init__(self):
+        self.token = "8063907641:AAEo6EyElmNEvuYcr-ol31GQDbR0HGpOQp8"
+        self.username = "ar1nas_bot"
+        self.group_invite_link = "https://t.me/+your_group_link"
+        self.managed_group_id = -1002846994358
+        self.support_username = "prohacker41"
 
 
 bot_config = BotConfig()
