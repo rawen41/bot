@@ -118,7 +118,7 @@ def increment_referral(referrer_tg_id: int, referred_user_id: int) -> int:
 def get_user_referrals(tg_id: int) -> List[Dict[str, Any]]:
     """Get list of users referred by this user with their names."""
     client = get_client()
-    # Now we can directly query by tg_id since we store it directly
+    # Query referrals by referrer_tg_id (stored in user_id column)
     res = (
         client.table("referrals")
         .select("referred_user")

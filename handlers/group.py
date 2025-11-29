@@ -7,14 +7,13 @@ from utils.helpers import send_db_response
 import logging
 
 router = Router()
-router.message.filter((F.chat.type == "group") | (F.chat.type == "supergroup"))
 logger = logging.getLogger(__name__)
 
 
 @router.message(Command("start"))
 async def group_start(message: Message) -> None:
     """Handle /start in groups to check if bot is working."""
-    logger.info(f"Group /start from user {message.from_user.id}")
+    logger.info(f"Group /start from user {message.from_user.id} in chat {message.chat.id}")
     await message.answer("🤖 البوت يعمل بنجاح في المجموعة!")
 
 
@@ -64,6 +63,8 @@ async def group_auto_moderation(message: Message) -> None:
     text = (message.text or message.caption or "").strip()
     if not text:
         return
+
+    logger.info(f"Group message: {text} from user {message.from_user.id} in chat {message.chat.id}")
 
     explanation_mode = get_explanation_mode()
 
