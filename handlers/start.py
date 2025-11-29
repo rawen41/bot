@@ -66,89 +66,106 @@ async def start_private(message: Message) -> None:
     await message.answer(text, reply_markup=main_menu_kb(tg_id))
 
 
-@router.message(F.chat.type == "private")
-async def handle_main_menu_buttons(message: Message) -> None:
-    text = (message.text or "").strip()
+@router.message(F.chat.type == "private", F.text == "🌐 رابط المجموعة")
+async def handle_group_link(message: Message) -> None:
+    logger.info(f"Group link button from user {message.from_user.id}")
+    await message.answer(
+        f"🌐 رابط الانضمام للمجموعة:\n{bot_config.group_invite_link}\n\n"
+        "✨ لمزيد من النجاحات وفرص العمر، انضم لفريقنا اليوم! 🚀\n"
+        "نحن هنا لندعمك ونحقق معًا أهدافك! 💪🔥")
+
+
+@router.message(F.chat.type == "private", F.text == "💬 الدعم الفني")
+async def handle_support(message: Message) -> None:
+    logger.info(f"Support button from user {message.from_user.id}")
+    support_username = bot_config.support_username.lstrip('@')
+    await message.answer(
+        f"💬 للتواصل مع الدعم الفني:\n"
+        f"اضغط على الرابط: @{support_username}\n"
+        f"أو افتح الحساب مباشرة: https://t.me/{support_username}"
+    )
+
+
+@router.message(F.chat.type == "private", F.text == "🔗 رابط الإحالة الخاص بي")
+async def handle_referral_link(message: Message) -> None:
+    logger.info(f"Referral link button from user {message.from_user.id}")
     tg_id = message.from_user.id
-    logger.info(f"Private message: {text} from user {tg_id}")
+    link = f"https://t.me/{bot_config.bot_username.lstrip('@')}?start={tg_id}"
+    await message.answer(
+        "🔗 رابط الإحالة الخاص بك:\n"
+        f"{link}\n\n"
+        "📌 شارك هذا الرابط مع أصدقائك لتحصل على إحالات ومكافآت!"
+    )
 
-    if text == "🌐 رابط المجموعة":
-        await message.answer(
-            f"🌐 رابط الانضمام للمجموعة:\n{bot_config.group_invite_link}\n\n"
-            "✨ لمزيد من النجاحات وفرص العمر، انضم لفريقنا اليوم! 🚀\n"
-            "نحن هنا لندعمك ونحقق معًا أهدافك! 💪🔥")
 
-    elif text == "💬 الدعم الفني":
-        support_username = bot_config.support_username.lstrip('@')
-        await message.answer(
-            f"💬 للتواصل مع الدعم الفني:\n"
-            f"اضغط على الرابط: @{support_username}\n"
-            f"أو افتح الحساب مباشرة: https://t.me/{support_username}"
-        )
+@router.message(F.chat.type == "private", F.text == "📜 قانون المجموعة")
+async def handle_group_rules(message: Message) -> None:
+    logger.info(f"Rules button from user {message.from_user.id}")
+    await message.answer(
+        "📜 قانون المجموعة:\n"
+        "1️⃣ الاحترام المتبادل بين جميع الأعضاء.\n"
+        "2️⃣ يمنع السب والشتم والإعلانات العشوائية.\n"
+        "3️⃣ الالتزام بتعليمات الإدارة.\n"
+    )
 
-    elif text == "🔗 رابط الإحالة الخاص بي":
-        link = f"https://t.me/{bot_config.bot_username.lstrip('@')}?start={tg_id}"
-        await message.answer(
-            "🔗 رابط الإحالة الخاص بك:\n"
-            f"{link}\n\n"
-            "📌 شارك هذا الرابط مع أصدقائك لتحصل على إحالات ومكافآت!"
-        )
 
-    elif text == "📜 قانون المجموعة":
-        await message.answer(
-            "📜 قانون المجموعة:\n"
-            "1️⃣ الاحترام المتبادل بين جميع الأعضاء.\n"
-            "2️⃣ يمنع السب والشتم والإعلانات العشوائية.\n"
-            "3️⃣ الالتزام بتعليمات الإدارة.\n"
-        )
+@router.message(F.chat.type == "private", F.text == "🧮 إحصائياتي")
+async def handle_stats(message: Message) -> None:
+    logger.info(f"Stats button from user {message.from_user.id}")
+    tg_id = message.from_user.id
+    from database.supabase import get_user_stats, get_user_referrals
 
-    elif text == "🧮 إحصائياتي":
-        from database.supabase import get_user_stats, get_user_referrals
+    stats = get_user_stats(tg_id)
+    if not stats:
+        await message.answer("لم يتم العثور على بياناتك بعد.")
+        return
+    
+    referrals = get_user_referrals(tg_id)
+    referral_names = []
+    for ref in referrals:
+        name = ref.get("username")
+        if name:
+            referral_names.append(f"@{name}")
+        else:
+            referral_names.append(f"مستخدم {ref['tg_id']}")
+    
+    names_text = "\n".join(referral_names) if referral_names else "لا توجد إحالات بعد"
+    
+    await message.answer(
+        "🧮 إحصائياتك:\n\n"
+        f"👤 المعرف: @{message.from_user.username or 'بدون'}\n"
+        f"🔗 عدد الإحالات الناجحة: {stats.get('referral_count', 0)}\n\n"
+        f"👥 قائمة إحالاتك:\n{names_text}\n\n"
+        f"💡 يمكنك رؤية أسماء المستخدمين الذين أحالتهم أعلاه!"
+    )
 
-        stats = get_user_stats(tg_id)
-        if not stats:
-            await message.answer("لم يتم العثور على بياناتك بعد.")
-            return
-        
-        referrals = get_user_referrals(tg_id)
-        referral_names = []
-        for ref in referrals:
-            name = ref.get("username")
-            if name:
-                referral_names.append(f"@{name}")
-            else:
-                referral_names.append(f"مستخدم {ref['tg_id']}")
-        
-        names_text = "\n".join(referral_names) if referral_names else "لا توجد إحالات بعد"
-        
-        await message.answer(
-            "🧮 إحصائياتك:\n\n"
-            f"👤 المعرف: @{message.from_user.username or 'بدون'}\n"
-            f"🔗 عدد الإحالات الناجحة: {stats.get('referral_count', 0)}\n\n"
-            f"👥 قائمة إحالاتك:\n{names_text}\n\n"
-            f"💡 يمكنك رؤية أسماء المستخدمين الذين أحالتهم أعلاه!"
-        )
 
-    elif text == "🎁 المكافآت":
-        from database.supabase import get_user_stats
+@router.message(F.chat.type == "private", F.text == "🎁 المكافآت")
+async def handle_rewards(message: Message) -> None:
+    logger.info(f"Rewards button from user {message.from_user.id}")
+    tg_id = message.from_user.id
+    from database.supabase import get_user_stats
 
-        stats = get_user_stats(tg_id)
-        count = stats.get("referral_count", 0) if stats else 0
-        status = "✅ مؤهل" if count >= 100 else "❌ غير مؤهل بعد"
-        await message.answer(
-            "🎁 نظام المكافآت:\n\n"
-            "كل عضو يصل إلى 100 إحالة ناجحة يحصل على:\n"
-            "🏆 متجر إلكتروني جاهز 🎉\n\n"
-            f"🔗 إحالاتك الحالية: {count}\n"
-            f"📌 حالتك: {status}"
-        )
+    stats = get_user_stats(tg_id)
+    count = stats.get("referral_count", 0) if stats else 0
+    status = "✅ مؤهل" if count >= 100 else "❌ غير مؤهل بعد"
+    await message.answer(
+        "🎁 نظام المكافآت:\n\n"
+        "كل عضو يصل إلى 100 إحالة ناجحة يحصل على:\n"
+        "🏆 متجر إلكتروني جاهز 🎉\n\n"
+        f"🔗 إحالاتك الحالية: {count}\n"
+        f"📌 حالتك: {status}"
+    )
 
-    elif text == "🧰 لوحة التحكم":
-        from config import MAIN_ADMIN_ID
-        from utils.keyboards import admin_panel_kb
 
-        if tg_id != MAIN_ADMIN_ID:
-            await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
-            return
-        await message.answer("🧰 لوحة تحكم الأدمن الرئيسي:", reply_markup=admin_panel_kb())
+@router.message(F.chat.type == "private", F.text == "🧰 لوحة التحكم")
+async def handle_admin_panel(message: Message) -> None:
+    logger.info(f"Admin panel button from user {message.from_user.id}")
+    from config import MAIN_ADMIN_ID
+    from utils.keyboards import admin_panel_kb
+
+    if message.from_user.id != MAIN_ADMIN_ID:
+        await message.answer("❌ هذه الميزة متاحة فقط للأدمن الرئيسي.")
+        return
+    await message.answer("🧰 لوحة تحكم الأدمن الرئيسي:", reply_markup=admin_panel_kb())
 
