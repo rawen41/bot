@@ -10,6 +10,60 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 
+# DEBUG: Catch all messages to see if bot receives anything
+@router.message()
+async def debug_all_messages(message: Message) -> None:
+    """Debug handler to see all messages the bot receives."""
+    logger.info(f"DEBUG: Message received in chat {message.chat.id} (type: {message.chat.type}) from user {message.from_user.id}: {message.text or message.caption or 'No text'}")
+    
+    # If it's a group/supergroup, continue to other handlers
+    if message.chat.type in ["group", "supergroup"]:
+        # Continue processing
+        await handle_group_message(message)
+    else:
+        # Don't handle private messages here
+        pass
+
+
+async def handle_group_message(message: Message) -> None:
+    """Handle actual group message logic."""
+    if not message.from_user or message.from_user.is_bot:
+        return
+
+    text = (message.text or message.caption or "").strip()
+    if not text:
+        return
+
+    logger.info(f"Processing group message: {text} from user {message.from_user.id} in chat {message.chat.id}")
+
+    # Check for specific commands
+    if text == "بسم الله":
+        await enable_explanation_mode(message)
+        return
+    elif text == "الحمد لله":
+        await disable_explanation_mode(message)
+        return
+    elif text.startswith("/start"):
+        await group_start(message)
+        return
+
+    # Handle auto-responses
+    explanation_mode = get_explanation_mode()
+
+    if explanation_mode:
+        # أثناء وضع الشرح: حذف كل الرسائل والرد فقط من قاعدة البيانات
+        try:
+            await message.delete()
+        except Exception:
+            pass
+
+        await send_db_response(message, text)
+        return
+
+    # وضع عادي: إذا كتب عضو كلمة من الردود الجاهزة → يرسل الرد المناسب (بدون حذف الرسالة)
+    await send_db_response(message, text)
+
+
 @router.message(Command("start"))
 async def group_start(message: Message) -> None:
     """Handle /start in groups to check if bot is working."""
@@ -53,32 +107,3 @@ async def disable_explanation_mode(message: Message) -> None:
         pass
 
     await message.answer("✅ تم إنهاء وضع الشرح بإمكانكم طرح الأسئلة نشكركم لحسن الإستماع .")
-
-
-@router.message()
-async def group_auto_moderation(message: Message) -> None:
-    logger.info(f"Group message received: {message.text} from user {message.from_user.id} in chat {message.chat.id}")
-    
-    if not message.from_user or message.from_user.is_bot:
-        return
-
-    text = (message.text or message.caption or "").strip()
-    if not text:
-        return
-
-    logger.info(f"Processing group message: {text} from user {message.from_user.id} in chat {message.chat.id}")
-
-    explanation_mode = get_explanation_mode()
-
-    if explanation_mode:
-        # أثناء وضع الشرح: حذف كل الرسائل والرد فقط من قاعدة البيانات
-        try:
-            await message.delete()
-        except Exception:
-            pass
-
-        await send_db_response(message, text)
-        return
-
-    # وضع عادي: إذا كتب عضو كلمة من الردود الجاهزة → يرسل الرد المناسب (بدون حذف الرسالة)
-    await send_db_response(message, text)
